@@ -21,7 +21,7 @@ O projeto nasceu da necessidade de manter uma "média" organizada e variada de c
 - sqlalchemy + mysql-connector-python
 
 ## Estrutura Recomendada do Repositório
-'''
+
 dedup-arquivos-antigos/
 ├── docker-compose.yml
 ├── Dockerfile.python
@@ -36,7 +36,7 @@ dedup-arquivos-antigos/
 │       └── cache_utils.py               # lógica Redis + fallback
 ├── notebooks/                           # experimentos Jupyter
 └── README.md
-'''
+
 
 ## Passo a Passo Completo de Implantação (Windows 11 + Docker Desktop)
 
@@ -53,13 +53,14 @@ dedup-arquivos-antigos/
 2. Nome: MediaLibrary 
 3. Repositório Público
 4. README criado e editado antes da estrutura ser criada localmente
-5. Crie → copie a URL (https ou SSH): 
+5. URL (SSH): git clone git@github.com:sramos30/MediaLibrary.git 
 
 ### 3. Estrutura local inicial
 
 ```bash
-mkdir dedup-arquivos-antigos
-cd dedup-arquivos-antigos
+mkdir MediaLibrary
+cd MediaLibrary
 
 git init
 git remote add origin https://github.com/SEU-USUARIO/dedup-arquivos-antigos.git
+
