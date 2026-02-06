@@ -1,5 +1,11 @@
 FROM python:3.11-slim
 
+# Instala ferramentas úteis (editores + redis-cli + limpeza de cache apt)
+RUN apt-get update && apt-get install -y \
+    vim redis-tools git curl less tree \
+    && rm -rf /var/lib/apt/lists/*	
+
+# Instala pacotes Python (adicione redis se ainda não tiver)
 RUN pip install --no-cache-dir \
     mysql-connector-python \
     sqlalchemy \
