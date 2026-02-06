@@ -53,13 +53,14 @@ dedup-arquivos-antigos/
 2. Nome: MediaLibrary 
 3. Repositório Público
 4. README criado e editado antes da estrutura ser criada localmente
-5. Crie → copie a URL (https ou SSH): 
+5. URL (SSH): git clone git@github.com:sramos30/MediaLibrary.git 
 
 ### 3. Estrutura local inicial
 
 ```bash
-mkdir dedup-arquivos-antigos
-cd dedup-arquivos-antigos
+mkdir MediaLibrary
+cd MediaLibrary
 
 git init
 git remote add origin https://github.com/SEU-USUARIO/dedup-arquivos-antigos.git
+
