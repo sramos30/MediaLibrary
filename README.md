@@ -21,7 +21,7 @@ O projeto nasceu da necessidade de manter uma "média" organizada e variada de c
 - sqlalchemy + mysql-connector-python
 
 ## Estrutura Recomendada do Repositório
-'''
+
 dedup-arquivos-antigos/
 ├── docker-compose.yml
 ├── Dockerfile.python
@@ -36,7 +36,7 @@ dedup-arquivos-antigos/
 │       └── cache_utils.py               # lógica Redis + fallback
 ├── notebooks/                           # experimentos Jupyter
 └── README.md
-'''
+
 
 ## Passo a Passo Completo de Implantação (Windows 11 + Docker Desktop)
 

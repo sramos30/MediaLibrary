@@ -1,0 +1,81 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: saP@ssw0rd!
+      MYSQL_DATABASE: dedup_db
+      MYSQL_USER: dedup_user
+      MYSQL_PASSWORD: urP@ssw0rd!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: saP@ssw0rd!
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - MediaDiskSmb:/scan-data:ro
+      - .:/app
+      - ./scripts:/app/scripts
+      - ./notebooks:/app/notebooks
+    working_dir: /app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: dedup_user
+      MYSQL_PASSWORD: urP@ssw0rd!
+      MYSQL_DB: dedup_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: tail -f /dev/null   # mantém vivo para exec/run
+
+volumes:
+  mysql-data:
+  redis-data:
+  MediaDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "//192.168.69.9/MediaDisk"
+      o: "username=${SMB_USER},password=${SMB_PASSWORD},uid=1000,gid=1000"
