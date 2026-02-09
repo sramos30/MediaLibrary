@@ -1,5 +1,8 @@
 # MediaLibrary
 A project to organize all media files distributed in all kind of archive
+git clone --single-branch --branch master git@github.com:sramos30/MediaLibrary.git
+git clone --single-branch --branch without_python_vs git@github.com:sramos30/MediaLibrary.git
+
 
 # Projeto Deduplicação e Organização de Arquivos Antigos
 
@@ -103,7 +106,3 @@ docker exec -it medialibrary-python-1 /bin/bash
       device: "${DATADISK_SERVER}"
       o: "username=${DATADISK_USER},password=${DATADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
 
-# Para criar um branch do Git chamada “recurso”, use:
-
-git clone --single-branch --branch master git@github.com:sramos30/MediaLibrary.git
-git clone --single-branch --branch without_python_vs git@github.com:sramos30/MediaLibrary.git
