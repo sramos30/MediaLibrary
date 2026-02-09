@@ -20,7 +20,7 @@ def get_redis():
     if _redis_client is None:
         try:
             _redis_client = redis.Redis(
-                host=os.getenv('REDIS_HOST', 'redis'),
+                host=os.getenv('REDIS_HOST', 'localhost'),
                 port=int(os.getenv('REDIS_PORT', 6379)),
                 db=0,
                 decode_responses=True,

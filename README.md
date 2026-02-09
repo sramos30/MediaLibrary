@@ -6,6 +6,21 @@ git clone --single-branch --branch without_python_vs git@github.com:sramos30/Med
 git branch --show-current
 git push --set-upstream origin <branch>
 
+
+# criar o ambiente virtual para o python e para o Jupyter
+
+python -m venv .venv
+Ativar o ambiente
+Windows: .venv\Scripts\activate
+Linux/Mac: source .venv/bin/activate
+
+para fechar o .env:
+deactivate
+
+instalar todos os pacotes no ambiente virtual
+pip install -r requirements.txt
+
+
 # Projeto Deduplicação e Organização de Arquivos Antigos
 
 **Objetivo principal**  
