@@ -60,7 +60,8 @@ git branch
 
 Create and switch to a new branch in one command
 git switch -c <new-branch-name>
-
+git push --set-upstream origin <new-branch-name>
+ 
 
 Use esse comando para gerenciar ramificações em seu repositório Git. Aqui está o uso básico do git branch para listar todas as ramificações existentes:
 
