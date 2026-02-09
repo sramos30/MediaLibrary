@@ -44,53 +44,6 @@ services:
       timeout: 5s
       retries: 3
 
-  python:
-    build:
-      context: .
-      dockerfile: Dockerfile.python
-    restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - .:/app
-      - c:/Resources:/resources
-      - c:/Projects:/projects
-      - /x/:/extdisk1
-      - MediaDiskSmb:/mediadisk
-      - BigDiskSmb:/bigdisk
-    working_dir: /app
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: dedup_user
-      MYSQL_PASSWORD: urP@ssw0rd!
-      MYSQL_DB: dedup_db
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    command: tail -f /dev/null   # mantém vivo para exec/run
-
 volumes:
   mysql-data:
   redis-data:
-  MediaDiskSmb:
-    driver: local
-    driver_opts:
-      type: cifs
-      device: "${MEDIADISK_SERVER}"
-      o: "username=${MEDIADISK_USER},password=${MEDIADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
-  BigDiskSmb:
-    driver: local
-    driver_opts:
-      type: cifs
-      device: "${BIGDISK_SERVER}"
-      o: "username=${BIGDISK_USER},password=${BIGDISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
-  DataDiskSmb:
-    driver: local
-    driver_opts:
-      type: cifs
-      device: "${DATADISK_SERVER}"
-      o: "username=${DATADISK_USER},password=${DATADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
-
-  
