@@ -6,3 +6,4 @@ xxhash
 redis>=5.0.0
 jupyterlab
 ipython-sql
+ipykernel

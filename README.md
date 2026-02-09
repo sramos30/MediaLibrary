@@ -64,3 +64,45 @@ cd MediaLibrary
 git init
 git remote add origin https://github.com/SEU-USUARIO/dedup-arquivos-antigos.git
 
+# create a cifs share
+mkdir -p ./MediaDisk && mount -t cifs //192.168.69.9/MediaDisk ./MediaDisk -o credentials=/app/credentials.sramos30,vers=3.0,file_mode=0777,dir_mode=0777
+
+credentials.sramos30
+====================
+username=sramos30
+password=mcLiamada1
+
+
+# docker compose
+docker compose down -v --remove-orphans --rmi all
+
+# open python dev container
+docker exec -it medialibrary-python-1 /bin/bash
+
+# docker compose CIFS Volume samples
+  - MediaDiskSmb:/mediadisk:ro
+  - BigDiskSmb:/bigdisk:ro
+  - DataDiskSmb:/datadisk:ro
+  
+  MediaDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${MEDIADISK_SERVER}"
+      o: "username=${MEDIADISK_USER},password=${MEDIADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+  BigDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${BIGDISK_SERVER}"
+      o: "username=${BIGDISK_USER},password=${BIGDISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+  DataDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${DATADISK_SERVER}"
+      o: "username=${DATADISK_USER},password=${DATADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+
+# Para criar um branch do Git chamada “recurso”, use:
+git branch recurso
+

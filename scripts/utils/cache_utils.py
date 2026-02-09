@@ -1,3 +1,5 @@
+# base do cache
+#!/usr/bin/env python3
 import os
 import json
 import redis
@@ -6,9 +8,9 @@ from pathlib import Path
 import xxhash
 
 # Configs
-PREFIX_SIZE = 64 * 1024
-HASH_FUNC = xxhash.xxh3_64          # ou xxh3_128 se preferir
-TTL_SECONDS = 86400 * 30            # 30 dias
+PREFIX_SIZE = 256 * 1024 # 256KB, pode ajustar conforme necessário
+HASH_FUNC = xxhash.xxh3_64  # ou xxh3_128 se preferir
+TTL_SECONDS = 86400 * 1  # 1 dia
 
 # Conexão Redis lazy com fallback
 _redis_client = None
@@ -78,4 +80,34 @@ def get_cached_prefix(path: Path):
 
     return result
 
+def set_cached_item(cache_key: str, record_index: int):
 
+    result = []
+
+    # Redis first
+    r = get_redis()
+    if r:
+        try:
+            cached = r.get(cache_key)
+            if cached:
+                result = tuple(json.loads(cached))
+        except RedisError:
+            pass
+
+    # Memory fallback
+    if cache_key in _memory_cache:
+        result = _memory_cache[cache_key]
+
+    if record_index not in result:
+        result.append(record_index)
+
+    # Cacheia
+    serialized = json.dumps(result)
+    if r:
+        try:
+            r.set(cache_key, serialized, ex=TTL_SECONDS)
+        except RedisError:
+            pass
+    _memory_cache[cache_key] = result
+
+    return result

@@ -1,7 +1,11 @@
-# conexão básica + query simples
+# teste de Redis
 #!/usr/bin/env python3
 """Testa conexão básica com Redis."""
+
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/..'))  # ajuste de path
+
 import redis
 
 try:
@@ -19,4 +23,3 @@ try:
 except Exception as e:
     print(f"Erro no Redis: {e}")
     sys.exit(1)
-    

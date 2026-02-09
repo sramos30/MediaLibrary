@@ -56,11 +56,12 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-      - MediaDiskSmb:/scan-data:ro
-      - ./scripts:/app/scripts
-      - ./notebooks:/app/notebooks
-      - ./requirements.txt:/app/requirements.txt
-    working_dir: /app/notebooks
+      - c:/Resources:/resources
+      - c:/Projects:/projects
+      - /x/:/extdisk1
+      - MediaDiskSmb:/mediadisk
+      - BigDiskSmb:/bigdisk
+    working_dir: /app
     environment:
       MYSQL_HOST: mysql
       MYSQL_USER: dedup_user
@@ -77,5 +78,19 @@ volumes:
     driver: local
     driver_opts:
       type: cifs
-      device: "//192.168.69.9/MediaDisk"
-      o: "username=${SMB_USER},password=${SMB_PASSWORD},uid=1000,gid=1000"
+      device: "${MEDIADISK_SERVER}"
+      o: "username=${MEDIADISK_USER},password=${MEDIADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+  BigDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${BIGDISK_SERVER}"
+      o: "username=${BIGDISK_USER},password=${BIGDISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+  DataDiskSmb:
+    driver: local
+    driver_opts:
+      type: cifs
+      device: "${DATADISK_SERVER}"
+      o: "username=${DATADISK_USER},password=${DATADISK_PASSWORD},uid=0,gid=0,vers=3.0,iocharset=utf8,dir_mode=0777,file_mode=0777"
+
+  

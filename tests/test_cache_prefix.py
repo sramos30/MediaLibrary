@@ -1,8 +1,11 @@
-# usa cache_utils para testar hit/miss
+# teste de cache simples
 #!/usr/bin/env python3
 """Testa o cache de prefix hash (hit vs miss)."""
 
 import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + '/..'))  # ajuste de path
+
 from pathlib import Path
 from scripts.utils.cache_utils import get_cached_prefix
 
