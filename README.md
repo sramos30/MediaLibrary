@@ -3,6 +3,7 @@ A project to organize all media files distributed in all kind of archive
 git clone --single-branch --branch master git@github.com:sramos30/MediaLibrary.git
 git clone --single-branch --branch without_python_vs git@github.com:sramos30/MediaLibrary.git
 
+git push --set-upstream origin <branch>
 
 # Projeto Deduplicação e Organização de Arquivos Antigos
 
