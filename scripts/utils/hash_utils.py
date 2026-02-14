@@ -1,79 +1,94 @@
-
 # calcula o hash do prefixo de um arquivo
 #!/usr/bin/env python3
 import os
-import json
-import redis
-from redis.exceptions import RedisError
 from pathlib import Path
 import xxhash
 
 # Configs
-PREFIX_SIZE = 64 * 1024
 HASH_FUNC = xxhash.xxh3_64
-
 HASH_BLK_SIZE = 64 * 1024  # 64KB
-HASH_NUM_BLKS = [1, 16, 256, 4096, 65536]
-HASH_OFFSETS = [0, HASH_BLK_SIZE, HASH_BLK_SIZE * HASH_NUM_BLKS[2], HASH_BLK_SIZE * HASH_NUM_BLKS[3], HASH_BLK_SIZE * HASH_NUM_BLKS[4]]
+HASH_NUM_BLKS = [1, 16, 16**2, 16**3, 16**4]  # Exemplo: 1, 16, 256, 4096, 65536, 1048576
+HASH_OFFSETS = [
+    [0, HASH_BLK_SIZE-1], 
+    [HASH_BLK_SIZE, HASH_BLK_SIZE * 16 - 1], 
+    [HASH_BLK_SIZE * 16, HASH_BLK_SIZE * 16**2 - 1], 
+    [HASH_BLK_SIZE * 16**2, HASH_BLK_SIZE * 16**3-1], 
+    [HASH_BLK_SIZE * 16**3, HASH_BLK_SIZE * 16**4-1],
+  ]
 
-def get_hash_block(blkNum:int, iv:int, filePath:Path):
-  if blkNum >= len(HASH_OFFSETS) or blkNum < 1:
-    return f"blkNum {blkNum} out of range"
-
-  try:
-      offset = HASH_OFFSETS[blkNum-1]
-      qtd_blks = HASH_NUM_BLKS[blkNum-1]
-      file_size = os.path.getsize(filePath)
-
-
-      read_size = min(PREFIX_SIZE, os.path.getsize(filePath))
-
-      with open(filePath, "rb") as f:
-          data = f.read(read_size)
-          h = HASH_FUNC()
-          h.update(data)
-          return hex(h.intdigest())
-  except OSError as err:
-    print( f"exception ({err}) in get_hash_block: {filePath}")      
-
-  return None
-# retorna as informacoes de um arquivo
-
-def getFileInfo(filePath:Path):
-    entry = {}
-    entry['name'] = ''
-    entry['path'] = ''
-    entry['hash1'] = 0
-    entry['hash2'] = 0
-    entry['hash3'] = 0
-    entry['hash4'] = 0
-    entry['hash5'] = 0
-    entry['ST_INO'] = 0
-    entry['ST_DEV'] = 0
-    entry['ST_NLINK'] = 0
-    entry['ST_SIZE'] = 0
-    entry['ST_MTIME'] = 0
+def get_hash_string(s:str):
+    retdict = []
+    retdict['rc'] = 0
+    retdict['hash_digest'] = ''
 
     try:
-        fullPath = os.path.abspath(filePath)
-        entry['name'] = os.path.basename(fullPath)  
-        entry['path'] = fullPath.replace(entry['name'],'')
-        fileStat = os.stat(fullPath)
-        entry['ST_INO'] = fileStat[stat.ST_INO]
-        entry['ST_DEV'] = fileStat[stat.ST_DEV]
-        entry['ST_NLINK'] = fileStat[stat.ST_NLINK]
-        entry['ST_SIZE'] = fileStat[stat.ST_SIZE]
-        entry['ST_MTIME'] = fileStat[stat.ST_MTIME]
-
-        read_size = min(entry['ST_SIZE'], PREFIX_SIZE)
-        with open(filePath, "rb") as f:
-            data = f.read(read_size)
-            h = HASH_FUNC()
-            h.update(data)
-            entry['prefix_hash'] = hex(h.intdigest())      
-
-        return entry
+      h = HASH_FUNC()
+      h.update(s)
+      retdict['hash_digest'] = h.hexdigest()
+      retdict['rc'] = 1
     except OSError as err:
-        print( f"exception ({err}) in getFileInfo: {filePath}")      
+      retdict['rc'] = -1
+      retdict["msg"] = f"exception ({err}) in get_hash_string: {s}"
 
-    return None
+    return retdict
+
+def get_hash_block(blkNum:int, iv:str, filePath:Path):
+  rc = {}
+  rc["rc"] = 0
+
+  if not os.path.exists(filePath):
+    rc["msg"] = f"file: {filePath} não existe!"
+    return rc
+
+  rc["filesize"] = os.path.getsize(filePath)
+
+  if blkNum >= len(HASH_OFFSETS) or blkNum < 0:
+    rc["msg"] = f"Bloco: {blkNum} está fora do intervalo permitido (0-{len(HASH_OFFSETS)-1})!"
+    return rc
+
+  if HASH_OFFSETS[blkNum][0] >= rc["filesize"]:
+    rc["msg"] = f"Bloco: {blkNum} tem offset inicial ({HASH_OFFSETS[blkNum][0]}) maior que o tamanho do arquivo ({rc["filesize"]})!"
+    return rc
+
+  of = HASH_OFFSETS[blkNum][1]
+  last_blk_size = 0
+  qtd_blks = HASH_NUM_BLKS[blkNum]
+
+  if blkNum == len(HASH_OFFSETS)-1:
+    of = rc["filesize"]-1
+    qtd_blks = (of - HASH_OFFSETS[blkNum][0] + 1) // HASH_BLK_SIZE
+    last_blk_size = (of - HASH_OFFSETS[blkNum][0] + 1) % HASH_BLK_SIZE
+  elif of >= rc["filesize"]:
+    of = rc["filesize"] - 1
+    qtd_blks = HASH_NUM_BLKS[blkNum]
+
+    if HASH_OFFSETS[blkNum][1] > of:
+      qtd_blks = (of - HASH_OFFSETS[blkNum][0] + 1) // HASH_BLK_SIZE
+      last_blk_size = (of - HASH_OFFSETS[blkNum][0] + 1) % HASH_BLK_SIZE
+
+  rc["oi"] = "offset initial:", HASH_OFFSETS[blkNum][0]
+  rc["of"] = "offset final", of
+  rc["qy"] = "qtd_bytes", of-HASH_OFFSETS[blkNum][0]+1
+  rc["qb"] = "qtd_blks:", qtd_blks
+  rc["lbs"] = "last_blk_size:", last_blk_size
+  rc["iv"] = iv
+  rc["digest"] = ""
+
+  try:
+      h = HASH_FUNC()
+      h.update(iv)
+
+      with open(filePath, "rb") as f:
+        for blk in range(qtd_blks):
+          data = f.read(HASH_BLK_SIZE)
+          h.update(data)
+        if last_blk_size > 0:
+            data = f.read(last_blk_size)
+            h.update(data)
+      rc["digest"] = h.hexdigest()
+      rc["rc"] = 1
+  except OSError as err:
+    rc["msg"] = f"exception ({err}) in get_hash_block: {filePath}"
+
+  return rc
+

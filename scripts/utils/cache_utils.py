@@ -80,7 +80,7 @@ def get_cached_prefix(path: Path):
 
     return result
 
-def set_cached_item(cache_key: str, record_index: int):
+def set_cached_item_(cache_key: str, record_index: int):
 
     result = []
 
