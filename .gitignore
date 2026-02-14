@@ -6,4 +6,6 @@ composer.phar
 # composer.lock
 
 .env
+.venv
+.vscode
 *.csv
