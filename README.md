@@ -19,9 +19,6 @@ deactivate
 instalar todos os pacotes no ambiente virtual
 pip install -r requirements.txt
 
-# destruir o container
-docker compose down -v
-
 
 # Projeto Deduplicação e Organização de Arquivos Antigos
 
