@@ -13,12 +13,11 @@ Ativar o ambiente
 Windows: .venv\Scripts\activate
 Linux/Mac: source .venv/bin/activate
 
-para fechar o .env:
-deactivate
-
 instalar todos os pacotes no ambiente virtual
 pip install -r requirements.txt
 
+para fechar o .venv:
+deactivate
 
 # Projeto Deduplicação e Organização de Arquivos Antigos
 
