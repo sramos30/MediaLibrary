@@ -3,9 +3,11 @@ CREATE DATABASE IF NOT EXISTS dedup_db CHARACTER SET utf8mb4 COLLATE utf8mb4_uni
 USE dedup_db;
 
 CREATE TABLE IF NOT EXISTS file_metadata (
-	id BIGINT UNSIGNED PRIMARY KEY,
-    name VARCHAR(512) NOT NULL,
-    full_path VARCHAR(2048) NOT NULL,
+	id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    base_path VARCHAR(512) DEFAULT NULL,
+    full_path VARCHAR(2048) DEFAULT NULL,
+	name VARCHAR(512) NOT NULL,
+	path_id VARCHAR(32) DEFAULT NULL,
     hash1 VARCHAR(32) DEFAULT NULL,
     hash2 VARCHAR(32) DEFAULT NULL,
     hash3 VARCHAR(32) DEFAULT NULL,
@@ -16,6 +18,7 @@ CREATE TABLE IF NOT EXISTS file_metadata (
     st_size BIGINT UNSIGNED DEFAULT 0,
     st_mtime DOUBLE DEFAULT 0,
 
+    INDEX idx_path_id (path_id),
     INDEX idx_size_prefix (st_dev, st_ino),
     INDEX idx_hash1 (st_size, hash1)
 

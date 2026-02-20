@@ -13,6 +13,7 @@ class Base(DeclarativeBase):
 class FileMetadata(Base):
     __tablename__ = "file_metadata"
     __table_args__ = (
+        Index("idx_path_id", "path_id"),
         Index("idx_size_prefix", "st_dev", "st_ino"),
         Index("idx_hash1", "st_size", "hash1"),
         {"mysql_engine": "InnoDB", "mysql_charset": "utf8mb4"},
@@ -24,7 +25,7 @@ class FileMetadata(Base):
     id: Mapped[int] = mapped_column(BIGINT(unsigned=True), primary_key=True)
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     full_path: Mapped[str] = mapped_column(String(2048), nullable=False)
-
+    path_id: Mapped[str | None] = mapped_column(String(32), default=None)
     hash1: Mapped[str | None] = mapped_column(String(32), default=None)
     hash2: Mapped[str | None] = mapped_column(String(32), default=None)
     hash3: Mapped[str | None] = mapped_column(String(32), default=None)
@@ -99,6 +100,13 @@ def insert_entry( data_entry: FileMetadata ):
 def get_entry_by_id(file_id: int) -> FileMetadata | None:
     with SessionLocal() as session:
         return session.get(FileMetadata, file_id)
+
+def get_entry_by_path_id(path_id: str) -> FileMetadata | None:
+    with SessionLocal() as session:  
+        stmt = sa.select(FileMetadata).where(
+            FileMetadata.path_id == path_id
+        )
+        return session.scalar(stmt)
 
 def get_by_inode(st_dev: str, st_ino: str) -> FileMetadata | None:
     with SessionLocal() as session:  
